@@ -200,7 +200,10 @@ func HandlePfcpSessionReportRequest(msg *pfcpUdp.Message) {
 		// After receiving the Usage Report, it should send charging request to the CHF
 		// and update the URR with the quota or other charging information according to
 		// the charging response
-		producer.ReportUsageAndUpdateQuota(smContext)
+		// Start a new goroutine for ReportUsageAndUpdateQuota，when do iperf test with >100M,huge number of urr ,need async dealing here.
+		go func() {
+			producer.ReportUsageAndUpdateQuota(smContext)
+		}()
 	}
 
 	// TS 23.502 4.2.3.3 2b. Send Data Notification Ack, SMF->UPF
